@@ -6,20 +6,19 @@ import { useEffect, useState } from "react";
 import { SafeEventEmitterProvider } from "@web3auth/base";
 
 import Web3 from "web3";
-import { errors, ethers } from 'ethers'
+import {  ethers } from 'ethers'
 import { Biconomy } from '@biconomy/mexa'
 import { ABI, DEPLOYED_ADDRESS } from "./data";
-import openlogin from "openlogin";
 
 function App() {
   const [user, setUser] = useState(null);
   const [web3auth, setWeb3auth] = useState<Web3Auth | null>(null);
   const [loaded, setLoaded] = useState(false);
-
+  
 
   const [accounts, setAccounts] = useState<string>('');
 
-  let web3
+
   useEffect(() => {
     console.log("useEffect");
 
@@ -80,19 +79,23 @@ function App() {
 
   const login = async () => {
     if (!web3auth) return;
-    const provider = await web3auth.connect();
-    console.log("provider", provider);
+    const Provider = await web3auth.connect();
+    console.log("provider", Provider);
     //@ts-ignore
-    web3 = new Web3(provider);
+    const web3 = new Web3(Provider);
+    console.log("web3", web3);
+
     const address = (await web3.eth.getAccounts())[0];
     setAccounts(address);
     console.log("address", address);
     console.log("web3", web3);
-    const originalMessage = "YOUR_MESSAGE";
-    //@ts-ignore
-    const signedMessage = await web3.eth.personal.sign(originalMessage, '0x41314d27a2aB574156Ba35e80Ab752c2DD305e80');
-    console.log("signedMessage", signedMessage);
+    
+    // const originalMessage = "YOUR_MESSAGE";
+    // //@ts-ignore
+    // const signedMessage = await web3.eth.personal.sign(originalMessage, '0x41314d27a2aB574156Ba35e80Ab752c2DD305e80');
+    // console.log("signedMessage", signedMessage);
     // TODO: add this provider to web3/ethers
+    
   };
   const logout = async () => {
     if (!web3auth) return;
@@ -105,16 +108,14 @@ function App() {
   };
 
   const mintNft = async () => {
-    const provider = await web3auth.connect();
-    console.log("provider", provider);
     //@ts-ignore
-    const Provider = new Web3(provider);
-    
+    const Provider = await web3auth.connect();
+    console.log(Provider)
     const tokenURI = `ipfs://QmbMGBzA2itV8kSMfXALUECNzyExaj9mEsixTKMKcxfraj`
 
     const biconomy = 
     new Biconomy(
-      Provider,
+     Provider,
       {
       apiKey: 'kmWOG5auW.4b175ffc-6bb1-45cc-ae49-135d65b48979',
       debug: true
@@ -147,7 +148,7 @@ function App() {
       // console.log(`Transaction Receipt: `, txReceipt)
     }
   }).onEvent(biconomy.ERROR, (error, message) => {
-    console.log(`Error: `, error)
+    console.log(`Error: `, error, message)
   })
 }
 
